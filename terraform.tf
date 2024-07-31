@@ -24,3 +24,15 @@ terraform {
   }
   required_version = "~> 1.7"
 }
+
+provider "azurerm" {
+  features {}
+}
+provider "azurerm" {
+  features {}
+  alias = "connectivity"
+}
+provider "azurerm" {
+  features {}
+  alias = "management"
+}

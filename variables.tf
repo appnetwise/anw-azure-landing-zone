@@ -450,7 +450,7 @@ To do this, simply create an entry similar to the root example below for one or 
 
 - root
 - decommissioned
-- sandboxes
+- playground
 - landing-zones
 - platform
 - connectivity

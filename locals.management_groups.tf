@@ -22,13 +22,23 @@ locals {
       parameters     = local.empty_map
       access_control = local.empty_map
     }
-    "${local.root_id}-sandboxes" = {
-      archetype_id   = "es_sandboxes"
+    "${local.root_id}-playground" = {
+      archetype_id   = "es_playground"
       parameters     = local.empty_map
       access_control = local.empty_map
     }
     "${local.root_id}-landing-zones" = {
       archetype_id   = "es_landing_zones"
+      parameters     = local.empty_map
+      access_control = local.empty_map
+    }
+    "${local.root_id}-europe" = {
+      archetype_id   = "es_europe"
+      parameters     = local.empty_map
+      access_control = local.empty_map
+    }
+    "${local.root_id}-asia" = {
+      archetype_id   = "es_asia"
       parameters     = local.empty_map
       access_control = local.empty_map
     }
@@ -107,8 +117,10 @@ locals {
   es_subscription_ids_defaults = {
     (local.root_id)                   = local.empty_list
     "${local.root_id}-decommissioned" = local.empty_list
-    "${local.root_id}-sandboxes"      = local.empty_list
+    "${local.root_id}-playground"      = local.empty_list
     "${local.root_id}-landing-zones"  = local.empty_list
+    "${local.root_id}-europe"         = local.empty_list
+    "${local.root_id}-asia"           = local.empty_list
     "${local.root_id}-platform"       = local.empty_list
     "${local.root_id}-connectivity"   = local.empty_list
     "${local.root_id}-management"     = local.empty_list
@@ -175,23 +187,29 @@ locals {
       subscription_ids           = local.es_subscription_ids_map[local.root_id]
       archetype_config           = local.es_archetype_config_map[local.root_id]
     }
-    "${local.root_id}-decommissioned" = {
-      display_name               = "Decommissioned"
+    "${local.root_id}-playground" = {
+      display_name               = "playground"
       parent_management_group_id = local.root_id
-      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-decommissioned"]
-      archetype_config           = local.es_archetype_config_map["${local.root_id}-decommissioned"]
-    }
-    "${local.root_id}-sandboxes" = {
-      display_name               = "Sandboxes"
-      parent_management_group_id = local.root_id
-      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-sandboxes"]
-      archetype_config           = local.es_archetype_config_map["${local.root_id}-sandboxes"]
+      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-playground"]
+      archetype_config           = local.es_archetype_config_map["${local.root_id}-playground"]
     }
     "${local.root_id}-landing-zones" = {
       display_name               = "Landing Zones"
       parent_management_group_id = local.root_id
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-landing-zones"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-landing-zones"]
+    }
+    "${local.root_id}-europe" = {
+      display_name               = "Europe"
+      parent_management_group_id = "${local.root_id}-landing-zones"
+      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-europe"]
+      archetype_config           = local.es_archetype_config_map["${local.root_id}-europe"]
+    }
+    "${local.root_id}-asia" = {
+      display_name               = "Asia"
+      parent_management_group_id = "${local.root_id}-landing-zones"
+      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-asia"]
+      archetype_config           = local.es_archetype_config_map["${local.root_id}-asia"]
     }
     "${local.root_id}-platform" = {
       display_name               = "Platform"
@@ -222,7 +240,7 @@ locals {
   es_corp_landing_zones = {
     "${local.root_id}-corp" = {
       display_name               = "Corp"
-      parent_management_group_id = "${local.root_id}-landing-zones"
+      parent_management_group_id = "${local.root_id}-europe"
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-corp"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-corp"]
     }
@@ -230,7 +248,7 @@ locals {
   es_online_landing_zones = {
     "${local.root_id}-online" = {
       display_name               = "Online"
-      parent_management_group_id = "${local.root_id}-landing-zones"
+      parent_management_group_id = "${local.root_id}-europe"
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-online"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-online"]
     }
