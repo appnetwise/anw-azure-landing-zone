@@ -36,10 +36,12 @@ jobs:
   
     - name: Terraform Init
       env:
-        ARM_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_BACKEND_CONTAINER: "tfstate" 
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
             container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
             container_exists="${container_exists%\"}"
