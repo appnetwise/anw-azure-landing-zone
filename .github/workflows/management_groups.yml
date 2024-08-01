@@ -33,17 +33,19 @@ jobs:
     
     - name: Terraform Init
       env:
-        ARM_BACKEND_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
+        ARM_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
         ARM_BACKEND_CONTAINER: "tfstate" 
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
       run: |
-            az account set --subscription $ARM_BACKEND_SUBSCRIPTION_ID
-            container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
+            az account set --subscription $ARM_SUBSCRIPTION_ID
+            container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
             container_exists="${container_exists%\"}"
             container_exists="${container_exists#\"}"
             if [ "$container_exists" == "false" ]; then
-              az storage container create --subscription "$ARM_BACKEND_SUBSCRIPTION_ID" --name "$ARM_BACKEND_CONTAINER" --public-access off
+              az storage container create --subscription "$ARM_SUBSCRIPTION_ID" --name "$ARM_BACKEND_CONTAINER" --public-access off
             fi
             TF_ROOT=$PWD
             ARM_BACKEND_STORAGE_KEY=$(az storage account keys list -g $ARM_BACKEND_STORAGE_ACCOUNT_RG -n $ARM_BACKEND_STORAGE_ACCOUNT --query [0].value -o tsv)
@@ -52,7 +54,7 @@ jobs:
               -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
               -backend-config="key=mgmt/core.tfstate" \
               -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
-              -backend-config="subscription_id=$ARM_BACKEND_SUBSCRIPTION_ID" \
+              -backend-config="subscription_id=$ARM_SUBSCRIPTION_ID" \
               -reconfigure
 
     - name: Terraform Format
