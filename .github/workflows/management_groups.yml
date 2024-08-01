@@ -14,6 +14,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    environment: Production
 
     defaults:
       run:
@@ -26,20 +27,19 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
     
-    - name: Azure Login
+    - name: Azure login
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
     - name: Terraform Init
       env:
         ARM_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
         ARM_BACKEND_CONTAINER: "tfstate" 
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        #ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_ID }}
       run: |
             container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
             container_exists="${container_exists%\"}"
