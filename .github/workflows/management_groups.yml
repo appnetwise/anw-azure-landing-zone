@@ -29,6 +29,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    
+    - name: Set default value
+      id: tf_var
+      run: |
+        var_file=${{ github.event.inputs.VAR_FILE }}
+        echo "::set-output name=tf_var_file::${var_file:-"management_core.tfvars"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
@@ -69,7 +75,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       run: |
-          terraform plan -out tfplan.out -var-file ${{ inputs.VAR_FILE }} -input=false
+          terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file}} -input=false
     - uses: actions/upload-artifact@v4
       with:
         name: tf-plan
