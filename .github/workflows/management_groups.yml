@@ -1,0 +1,75 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "feat/fsi_mgmt" ]
+  pull_request:
+  workflow_dispatch: 
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2.0.3
+    
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Terraform Init
+      uses: azure/powershell@v2
+      env:
+        ARM_BACKEND_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
+        ARM_BACKEND_CONTAINER: "tfstate" 
+        ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
+        ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+            if ( (az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists) -eq "false") {
+              az storage container create --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --public-access off
+            }
+            TF_ROOT=$PWD
+            ARM_BACKEND_STORAGE_KEY=$(az storage account keys list -g $ARM_BACKEND_STORAGE_ACCOUNT_RG -n $ARM_BACKEND_STORAGE_ACCOUNT --query [0].value -o tsv)
+            terraform init \
+              -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
+              -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
+              -backend-config="key=mgmt/core.tfstate" \
+              -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
+              -backend-config="subscription_id=$ARM_BACKEND_SUBSCRIPTION_ID" \
+              -reconfigure
+
+    - name: Terraform Format
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          terraform fmt -check
+    
+    - name: Terraform Plan
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          terraform plan -var-file management_core.tfvars -input=false
+    
+    - name: Terraform Apply
+      uses: azure/powershell@v2
+      with:
+        azPSVersion: "latest"
+        inlineScript: |
+          terraform apply -var-file management_core.tfvars -auto-approve -input=false
