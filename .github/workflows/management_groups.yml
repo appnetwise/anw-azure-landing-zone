@@ -28,14 +28,13 @@ jobs:
       uses: hashicorp/setup-terraform@v2.0.3
     
     - name: Azure login
-      uses: azure/login@v2
+      uses: azure/login@v1
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Terraform Init
-      uses: azure/cli@v2
       env:
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_BACKEND_CONTAINER: "tfstate" 
@@ -43,9 +42,7 @@ jobs:
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      with:
-        azcliversion: latest
-        inlineScript: |
+      run: |
           container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $AZURE_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
           container_exists="${container_exists%\"}"
           container_exists="${container_exists#\"}"
@@ -61,34 +58,25 @@ jobs:
             -reconfigure
 
     - name: Terraform Format
-      uses: azure/cli@v2
       env:
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      with:
-        azcliversion: latest
-        inlineScript: |
+      run: |
           terraform fmt -check
     
     - name: Terraform Plan
-      uses: azure/cli@v2
       env:
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      with:
-        azcliversion: latest
-        inlineScript: |
+      run: |
           terraform plan -var-file management_core.tfvars -input=false
     
     - name: Terraform Apply
-      uses: azure/cli@v2
       env:
         AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      with:
-        azcliversion: latest
-        inlineScript: |
+      run: |
           terraform apply -var-file management_core.tfvars -auto-approve -input=false
