@@ -43,13 +43,6 @@ jobs:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
-          az account show
-          container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $AZURE_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
-          container_exists="${container_exists%\"}"
-          container_exists="${container_exists#\"}"
-          if [ "$container_exists" == "false" ]; then
-            az storage container create --subscription "$AZURE_SUBSCRIPTION_ID" --name "$ARM_BACKEND_CONTAINER" --public-access off
-          fi
           terraform init \
             -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
             -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
