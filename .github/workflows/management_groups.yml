@@ -37,6 +37,7 @@ jobs:
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
       run: |
+            az account set --subscription $ARM_BACKEND_SUBSCRIPTION_ID
             container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
             container_exists="${container_exists%\"}"
             container_exists="${container_exists#\"}"
