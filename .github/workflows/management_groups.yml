@@ -31,18 +31,18 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
     - name: Terraform Init
-      uses: azure/cli@v2
       env:
         ARM_BACKEND_SUBSCRIPTION_ID: "ea0a0669-7cd7-4792-aadb-8f128ca2dfef"
         ARM_BACKEND_CONTAINER: "tfstate" 
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
-      with:
-        azcliversion: "latest"
-        inlineScript: |
-            if ( (az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists) -eq "false") {
-              az storage container create --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --public-access off
-            }
+      run: |
+            container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_BACKEND_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
+            container_exists="${container_exists%\"}"
+            container_exists="${container_exists#\"}"
+            if [ "$container_exists" == "false" ]; then
+              az storage container create --subscription "$ARM_BACKEND_SUBSCRIPTION_ID" --name "$ARM_BACKEND_CONTAINER" --public-access off
+            fi
             TF_ROOT=$PWD
             ARM_BACKEND_STORAGE_KEY=$(az storage account keys list -g $ARM_BACKEND_STORAGE_ACCOUNT_RG -n $ARM_BACKEND_STORAGE_ACCOUNT --query [0].value -o tsv)
             terraform init \
@@ -54,22 +54,13 @@ jobs:
               -reconfigure
 
     - name: Terraform Format
-      uses: azure/cli@v2
-      with:
-        azcliversion: "latest"
-        inlineScript: |
+      run: |
           terraform fmt -check
     
     - name: Terraform Plan
-      uses: azure/cli@v2
-      with:
-        azcliversion: "latest"
-        inlineScript: |
+      run: |
           terraform plan -var-file management_core.tfvars -input=false
     
     - name: Terraform Apply
-      uses: azure/cli@v2
-      with:
-        azcliversion: "latest"
-        inlineScript: |
+      run: |
           terraform apply -var-file management_core.tfvars -auto-approve -input=false
