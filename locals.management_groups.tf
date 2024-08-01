@@ -42,6 +42,11 @@ locals {
       parameters     = local.empty_map
       access_control = local.empty_map
     }
+    "${local.root_id}-northamerica" = {
+      archetype_id   = "es_northamerica"
+      parameters     = local.empty_map
+      access_control = local.empty_map
+    }
     "${local.root_id}-platform" = {
       archetype_id   = "es_platform"
       parameters     = local.empty_map
@@ -121,6 +126,7 @@ locals {
     "${local.root_id}-landing-zones"  = local.empty_list
     "${local.root_id}-europe"         = local.empty_list
     "${local.root_id}-asia"           = local.empty_list
+    "${local.root_id}-northamerica"   = local.empty_list
     "${local.root_id}-platform"       = local.empty_list
     "${local.root_id}-connectivity"   = local.empty_list
     "${local.root_id}-management"     = local.empty_list
@@ -211,6 +217,18 @@ locals {
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-asia"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-asia"]
     }
+    "${local.root_id}-europe" = {
+      display_name               = "Europe"
+      parent_management_group_id = "${local.root_id}-landing-zones"
+      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-europe"]
+      archetype_config           = local.es_archetype_config_map["${local.root_id}-europe"]
+    }
+    "${local.root_id}-northamerica" = {
+      display_name               = "northamerica"
+      parent_management_group_id = "${local.root_id}-landing-zones"
+      subscription_ids           = local.es_subscription_ids_map["${local.root_id}-northamerica"]
+      archetype_config           = local.es_archetype_config_map["${local.root_id}-northamerica"]
+    }
     "${local.root_id}-platform" = {
       display_name               = "Platform"
       parent_management_group_id = local.root_id
@@ -240,7 +258,7 @@ locals {
   es_corp_landing_zones = {
     "${local.root_id}-corp" = {
       display_name               = "Corp"
-      parent_management_group_id = "${local.root_id}-europe"
+      parent_management_group_id = "${local.root_id}-asia"
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-corp"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-corp"]
     }
@@ -248,7 +266,7 @@ locals {
   es_online_landing_zones = {
     "${local.root_id}-online" = {
       display_name               = "Online"
-      parent_management_group_id = "${local.root_id}-europe"
+      parent_management_group_id = "${local.root_id}-asia"
       subscription_ids           = local.es_subscription_ids_map["${local.root_id}-online"]
       archetype_config           = local.es_archetype_config_map["${local.root_id}-online"]
     }
