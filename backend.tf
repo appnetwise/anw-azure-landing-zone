@@ -1,5 +1,3 @@
 terraform {
-  backend "azurerm" {
-     use_oidc             = true
-  }
+  backend "azurerm" {}
 }
