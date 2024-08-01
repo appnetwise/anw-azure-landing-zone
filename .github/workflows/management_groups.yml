@@ -36,25 +36,32 @@ jobs:
 
     - name: Terraform Init
       env:
-        AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         ARM_BACKEND_CONTAINER: "tfstate" 
         ARM_BACKEND_STORAGE_ACCOUNT: "sterranwmgmtsa"
         ARM_BACKEND_STORAGE_ACCOUNT_RG: "rg-err-anw-mgmt-mgmt"
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
+          container_exists=$(az storage container exists --account-name $ARM_BACKEND_STORAGE_ACCOUNT --subscription $ARM_SUBSCRIPTION_ID --name $ARM_BACKEND_CONTAINER --query exists)   
+          container_exists="${container_exists%\"}"
+          container_exists="${container_exists#\"}"
+          if [ "$container_exists" == "false" ]; then
+            az storage container create --subscription "$ARM_SUBSCRIPTION_ID" --name "$ARM_BACKEND_CONTAINER" --public-access off
+          fi
           terraform init \
             -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
             -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
             -backend-config="key=mgmt/core.tfstate" \
             -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
-            -backend-config="subscription_id=$AZURE_SUBSCRIPTION_ID" \
+            -backend-config="subscription_id=$ARM_SUBSCRIPTION_ID" \
             -reconfigure
     
     - name: Terraform Plan
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       run: |
           terraform plan -var-file management_core.tfvars -input=false
     
@@ -62,5 +69,6 @@ jobs:
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       run: |
           terraform apply -var-file management_core.tfvars -auto-approve -input=false
