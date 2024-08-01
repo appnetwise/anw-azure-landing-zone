@@ -78,7 +78,10 @@ jobs:
       with:
         name: tf-plan
         path: /tmp
-    
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
     
