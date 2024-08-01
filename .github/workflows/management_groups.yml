@@ -4,7 +4,13 @@ on:
   push:
     branches: [ "dev" ]
   pull_request:
-  workflow_dispatch: 
+  workflow_dispatch:
+    inputs:
+      VAR_FILE:
+        description: 'Terraform variable file'
+        required: true
+        default: management_core.tfvars
+        type: string
 
 permissions:
   id-token: write
@@ -63,7 +69,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       run: |
-          terraform plan -out tfplan.out -var-file management_core.tfvars -input=false
+          terraform plan -out tfplan.out -var-file ${{ inputs.VAR_FILE }} -input=false
     - uses: actions/upload-artifact@v4
       with:
         name: tf-plan
