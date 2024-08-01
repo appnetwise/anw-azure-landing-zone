@@ -14,6 +14,7 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    environment: plan
 
     defaults:
       run:
@@ -68,9 +69,10 @@ jobs:
         name: tf-plan
         path: tfplan.out
   Apply:
+    needs: terraform
     name: Terraform Apply
     runs-on: ubuntu-latest
-    environment: Production
+    environment: apply
     steps:
     - uses: actions/download-artifact@v4
       with:
