@@ -9,7 +9,7 @@ on:
       VAR_FILE:
         description: 'Terraform variable file'
         required: true
-        default: management_core.tfvars
+        default: management_resources.tfvars
         type: string
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
       id: tf_var
       run: |
         var_file=${{ github.event.inputs.VAR_FILE }}
-        echo "::set-output name=tf_var_file::${var_file:-"management_core.tfvars"}"
+        echo "::set-output name=tf_var_file::${var_file:-"management_resources.tfvars"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
