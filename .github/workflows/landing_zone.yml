@@ -81,7 +81,10 @@ jobs:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_CLIENT_SECRETE: ${{ secrets.AZURE_CLIENT_SECRET }}
       run: |
+          az logout
+          az login -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRETE --tenant $ARM_TENANT_ID
           terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file }} -input=false
     - uses: actions/upload-artifact@v4
       with:
