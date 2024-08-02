@@ -37,3 +37,7 @@ provider "azurerm" {
   features {}
   alias = "management"
 }
+
+provider "azapi" {
+  use_oidc = true
+}
