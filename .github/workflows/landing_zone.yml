@@ -9,7 +9,12 @@ on:
       VAR_FILE:
         description: 'Terraform variable file'
         required: true
-        default: management_core.tfvars
+        default: management_resources.tfvars
+        type: string
+      STATE_FILE:
+        description: 'Terraform State file Name'
+        required: true
+        default: management.tfstate
         type: string
 
 permissions:
@@ -34,7 +39,9 @@ jobs:
       id: tf_var
       run: |
         var_file=${{ github.event.inputs.VAR_FILE }}
-        echo "::set-output name=tf_var_file::${var_file:-"management_core.tfvars"}"
+        echo "::set-output name=tf_var_file::${var_file:-"management_resources.tfvars"}"
+        state_file=${{ github.event.inputs.STATE_FILE }}
+        echo "::set-output name=tf_state_file::${state_file:-"management.tfstate"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
@@ -75,7 +82,7 @@ jobs:
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       run: |
-          terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file}} -input=false
+          terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file }} -input=false
     - uses: actions/upload-artifact@v4
       with:
         name: tf-plan
@@ -85,6 +92,7 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
     environment: apply
+    if: github.ref == 'refs/heads/"dev"' && github.event_name == 'push'
     steps:
     - uses: actions/download-artifact@v4
       with:
@@ -122,7 +130,7 @@ jobs:
           terraform init \
             -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
             -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
-            -backend-config="key=mgmt/core.tfstate" \
+            -backend-config="key=mgmt/${{ steps.tf_var.outputs.tf_state_file }}" \
             -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
             -backend-config="subscription_id=$ARM_SUBSCRIPTION_ID" \
             -reconfigure
