@@ -9,12 +9,12 @@ on:
       VAR_FILE:
         description: 'Terraform variable file'
         required: true
-        default: management_resources.tfvars
+        default: connectivity_resources.tfvars
         type: string
       STATE_FILE:
         description: 'Terraform State file Name'
         required: true
-        default: management.tfstate
+        default: connectivity.tfstate
         type: string
 
 permissions:
@@ -39,9 +39,9 @@ jobs:
       id: tf_var
       run: |
         var_file=${{ github.event.inputs.VAR_FILE }}
-        echo "::set-output name=tf_var_file::${var_file:-"management_resources.tfvars"}"
+        echo "::set-output name=tf_var_file::${var_file:-"connectivity_resources.tfvars"}"
         state_file=${{ github.event.inputs.STATE_FILE }}
-        echo "::set-output name=tf_state_file::${state_file:-"management.tfstate"}"
+        echo "::set-output name=tf_state_file::${state_file:-"connectivity.tfstate"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
