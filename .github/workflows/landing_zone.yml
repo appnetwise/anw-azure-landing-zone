@@ -27,6 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: plan
 
+    outputs:
+      tf_var_file: ${{ steps.tf_var.outputs.tf_var_file }}
+      tf_state_file: ${{ steps.tf_var.outputs.tf_state_file }}
+
     defaults:
       run:
         shell: bash
@@ -71,7 +75,7 @@ jobs:
           terraform init \
             -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
             -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
-            -backend-config="key=mgmt/core.tfstate" \
+            -backend-config="key=mgmt/${{ steps.tf_var.outputs.tf_state_file }}" \
             -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
             -backend-config="subscription_id=$ARM_SUBSCRIPTION_ID" \
             -reconfigure
@@ -131,7 +135,7 @@ jobs:
           terraform init \
             -backend-config="storage_account_name=$ARM_BACKEND_STORAGE_ACCOUNT" \
             -backend-config="container_name=$ARM_BACKEND_CONTAINER" \
-            -backend-config="key=mgmt/${{ steps.tf_var.outputs.tf_state_file }}" \
+            -backend-config="key=mgmt/${{ needs.terraform.outputs.tf_state_file }}" \
             -backend-config="resource_group_name=$ARM_BACKEND_STORAGE_ACCOUNT_RG" \
             -backend-config="subscription_id=$ARM_SUBSCRIPTION_ID" \
             -reconfigure
