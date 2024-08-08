@@ -90,7 +90,7 @@ jobs:
             -reconfigure
     
     - name: Terraform Plan
-      if: "${{ steps.tf_var.outputs.tf_action != 'Apply' }}"
+      if: "${{ steps.tf_var.outputs.tf_action == 'Apply' }}"
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -100,7 +100,7 @@ jobs:
           terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file }} -input=false
 
     - name: Terraform Plan
-      if: "${{ github.event.inputs.terraform_action == 'Destroy' }}"
+      if: "${{ steps.tf_var.outputs.tf_action == 'Destroy' }}"
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -118,7 +118,7 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
     environment: apply
-    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/dev'
     steps:
     - uses: actions/download-artifact@v4
       with:
