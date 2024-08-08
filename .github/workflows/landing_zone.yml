@@ -6,6 +6,13 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      terraform_action:
+        type: choice
+        description: Action to perform
+        default: Apply
+        options: 
+        - Apply
+        - Destroy
       VAR_FILE:
         description: 'Terraform variable file'
         required: true
@@ -46,6 +53,8 @@ jobs:
         echo "::set-output name=tf_var_file::${var_file:-"connectivity_resources.tfvars"}"
         state_file=${{ github.event.inputs.STATE_FILE }}
         echo "::set-output name=tf_state_file::${state_file:-"connectivity.tfstate"}"
+        action=${{ github.event.inputs.terraform_action }}
+        echo "::set-output name=tf_action::${action:-"Apply"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
@@ -81,6 +90,7 @@ jobs:
             -reconfigure
     
     - name: Terraform Plan
+      if: "${{ steps.tf_var.outputs.tf_action != 'Apply' }}"
       env:
         ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -88,6 +98,17 @@ jobs:
         ARM_CLIENT_SECRETE: ${{ secrets.AZURE_CLIENT_SECRET }}
       run: |
           terraform plan -out tfplan.out -var-file ${{ steps.tf_var.outputs.tf_var_file }} -input=false
+
+    - name: Terraform Plan
+      if: "${{ github.event.inputs.terraform_action == 'Destroy' }}"
+      env:
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_CLIENT_SECRETE: ${{ secrets.AZURE_CLIENT_SECRET }}
+      run: |
+          terraform plan -out tfplan.out -destroy -var-file ${{ steps.tf_var.outputs.tf_var_file }} -input=false     
+           
     - uses: actions/upload-artifact@v4
       with:
         name: tf-plan
