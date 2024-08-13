@@ -43,7 +43,7 @@ jobs:
       id: tf_var
       run: |
         var_file=${{ github.event.inputs.VAR_FILE }}
-        echo "::set-output name=tf_var_file::${var_file:-"identity_resources.tfvars"}"
+        echo "::set-output name=tf_var_file::${var_file:-"connectivity.tfstate"}"
         state_file=${{ github.event.inputs.STATE_FILE }}
         echo "::set-output name=tf_state_file::${state_file:-"identity.tfstate"}"
 
