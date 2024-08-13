@@ -43,9 +43,9 @@ jobs:
       id: tf_var
       run: |
         var_file=${{ github.event.inputs.VAR_FILE }}
-        echo "::set-output name=tf_var_file::${var_file:-"connectivity_resources.tfvars"}"
+        echo "::set-output name=tf_var_file::${var_file:-"identity_resources.tfvars"}"
         state_file=${{ github.event.inputs.STATE_FILE }}
-        echo "::set-output name=tf_state_file::${state_file:-"connectivity.tfstate"}"
+        echo "::set-output name=tf_state_file::${state_file:-"identity.tfstate"}"
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2.0.3
