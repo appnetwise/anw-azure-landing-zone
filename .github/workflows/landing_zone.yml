@@ -16,12 +16,12 @@ on:
       VAR_FILE:
         description: 'Terraform variable file'
         required: true
-        default: connectivity_resources.tfvars
+        default: identity_resources.tfvars
         type: string
       STATE_FILE:
         description: 'Terraform State file Name'
         required: true
-        default: connectivity.tfstate
+        default: identity.tfstate
         type: string
 
 permissions:
