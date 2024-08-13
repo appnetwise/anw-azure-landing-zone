@@ -4,7 +4,9 @@
       "Audit-ResourceRGLocation"
     ],
     "policy_definitions": [
-      "Append-AppService-httpsonly"
+      "Append-AppService-httpsonly",
+      "Deny-Subnet-Without-Nsg",
+      "Deny-MgmtPorts-From-Internet"
     ],
     "policy_set_definitions": [
       "Audit-TrustedLaunch"
